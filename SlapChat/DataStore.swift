@@ -11,9 +11,9 @@ import CoreData
 
 class DataStore {
     
-
-    static let sharedDataStore = DataStore()
     
+    static let sharedDataStore = DataStore()
+    var messages: [Message] = []
     
     // MARK: - Core Data Saving support
     
@@ -31,11 +31,17 @@ class DataStore {
         }
     }
     
-//        func fetchData ()
-//        {
-//         perform a fetch request to fill an array property on your datastore
-//        }
-
+    func fetchData ()
+    {
+        // perform a fetch request to fill an array property on your datastore
+        let newMessage = NSFetchRequest.init(entityName: "Message")
+        do {
+            self.messages = try self.managedObjectContext.executeFetchRequest(newMessage) as! [Message]
+        } catch let nserror as NSError {
+            print("There was an error \(nserror)")
+        }
+    }
+    
     // MARK: - Core Data stack
     // Managed Object Context property getter. This is where we've dropped our "boilerplate" code.
     // If the context doesn't already exist, it is created and bound to the persistent store coordinator for the application.
@@ -50,7 +56,7 @@ class DataStore {
     
     lazy var managedObjectModel: NSManagedObjectModel = {
         // The managed object model for the application. This property is not optional. It is a fatal error for the application not to be able to find and load its model.
-        let modelURL = NSBundle.mainBundle().URLForResource("<#XCDATAMODELD_NAME#>", withExtension: "momd")!
+        let modelURL = NSBundle.mainBundle().URLForResource("slapChat", withExtension: "momd")!
         return NSManagedObjectModel(contentsOfURL: modelURL)!
     }()
     
@@ -58,7 +64,7 @@ class DataStore {
         // The persistent store coordinator for the application. This implementation creates and returns a coordinator, having added the store for the application to it. This property is optional since there are legitimate error conditions that could cause the creation of the store to fail.
         // Create the coordinator and store
         let coordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
-        let url = self.applicationDocumentsDirectory.URLByAppendingPathComponent("SingleViewCoreData.sqlite")
+        let url = self.applicationDocumentsDirectory.URLByAppendingPathComponent("slapChat")
         var failureReason = "There was an error creating or loading the application's saved data."
         do {
             try coordinator.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: nil)
